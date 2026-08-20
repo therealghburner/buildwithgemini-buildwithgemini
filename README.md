@@ -136,38 +136,20 @@ A **skill** is a bundle of instructions that loads automatically when it's relev
 
 ---
 
-## 🧰 Build Your Own
+## 🧰 Getting Started
 
-The full, step-by-step walkthrough lives on the **[lab guide](https://cszhu.github.io/build-with-gemini/)**. This is the short version.
+This repository has been fully customized as a **Purchase Order Procurement & Compliance Analytics Agent**.
 
-**Prerequisites** (the lab workstation comes with all of this pre-installed; you'll need it if you're running on your own machine):
+If you are cloning this repository to run it elsewhere, continue development, or launch the web chat UI and live agent container, please follow our comprehensive step-by-step setup guide:
 
-- A **Google Cloud project** with billing enabled
-- **[Antigravity](https://antigravity.google)** (`agy`), the coding agent that loads the skills above
-- **[agents-cli](https://google.github.io/agents-cli/guide/getting-started/)**, built on the [Agent Development Kit (ADK)](https://google.github.io/adk-docs/)
-- Authenticated gcloud: `gcloud auth login` and `gcloud auth application-default login`
-- A personal **GitHub account** for the final publish-and-submit step
+👉 **[GETTING_STARTED.md](file:///config/Desktop/BuildWithGemini/GETTING_STARTED.md)**
 
-**Quickstart:**
-
-```bash
-git clone https://github.com/cszhu/build-with-gemini
-cd build-with-gemini
-agy
-```
-
-On startup, Antigravity scans the `.agents/` folder and loads the skills and tools above automatically. In the AGY prompt:
-
-```text
-/skills            # see the installed skills
-/mcp               # confirm the firebase + google-developer-knowledge tools are connected
-```
-
-```text
-Verify my setup.   # runs the troubleshoot-lab-setup skill to check your environment
-```
-
-Then follow the [lab guide](https://cszhu.github.io/build-with-gemini/) to design, build, deploy, and share your agent, start to finish.
+This setup guide includes:
+* Terminal authentication instructions
+* Local environment setup commands (`pip` / `uv`)
+* Start-up runbooks for the FastAPI Proxy Server and HTML5 UI
+* Cloud-deployment guides (`agents-cli deploy`)
+* Built-in troubleshooting checks
 
 ---
 
