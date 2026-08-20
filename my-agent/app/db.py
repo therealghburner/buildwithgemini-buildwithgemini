@@ -1,8 +1,9 @@
+import os
 import sqlite3
 import re
 from typing import Dict, Any, List
 
-DB_PATH = "purchase_orders.db"
+DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "purchase_orders.db"))
 
 class ReadOnlyDatabaseManager:
     """Safe Read-Only Database Manager enforcing query security guardrails."""
