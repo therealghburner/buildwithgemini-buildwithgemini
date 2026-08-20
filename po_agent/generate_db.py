@@ -55,6 +55,9 @@ def init_db(db_path: str = DB_NAME):
             quantity INTEGER NOT NULL,
             unit_price REAL NOT NULL,
             total_price REAL NOT NULL,
+            received_quantity INTEGER NOT NULL DEFAULT 0,
+            shipped_quantity INTEGER NOT NULL DEFAULT 0,
+            transit_quantity INTEGER NOT NULL DEFAULT 0,
             FOREIGN KEY (po_id) REFERENCES purchase_orders(po_id)
         );
     """)
@@ -116,12 +119,39 @@ def init_db(db_path: str = DB_NAME):
             item_total = round(qty * u_price, 2)
             po_total += item_total
 
+            # Realistically calculate shipping and receiving quantities
+            received_qty = 0
+            shipped_qty = 0
+            transit_qty = 0
+
+            if status == 'Fulfilled':
+                received_qty = qty
+                shipped_qty = qty
+                transit_qty = 0
+            elif status == 'Approved':
+                roll = random.random()
+                if roll < 0.15:  # 50% received
+                    received_qty = int(qty * 0.5)
+                    shipped_qty = qty
+                    transit_qty = qty - received_qty
+                elif roll < 0.25:  # fully received
+                    received_qty = qty
+                    shipped_qty = qty
+                    transit_qty = 0
+                elif roll < 0.50:  # in transit
+                    received_qty = 0
+                    shipped_qty = qty
+                    transit_qty = qty
+
             po_items_list.append((
                 i,
                 fake.catch_phrase(),
                 qty,
                 u_price,
-                item_total
+                item_total,
+                received_qty,
+                shipped_qty,
+                transit_qty
             ))
 
         pos.append((
@@ -144,8 +174,8 @@ def init_db(db_path: str = DB_NAME):
 
     cursor.executemany("""
         INSERT INTO po_items 
-        (po_id, item_description, quantity, unit_price, total_price)
-        VALUES (?, ?, ?, ?, ?)
+        (po_id, item_description, quantity, unit_price, total_price, received_quantity, shipped_quantity, transit_quantity)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """, po_items_list)
 
     conn.commit()

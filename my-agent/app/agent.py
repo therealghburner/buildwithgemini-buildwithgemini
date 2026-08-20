@@ -131,6 +131,7 @@ instruction = schema_manager.generate_system_prompt(
         "and vendor compliance using the SQLite Purchase Order database and the procurement policies RAG corpus. "
         "Always use the `query_purchase_orders` tool to count, filter, aggregate, and lookup purchase orders. "
         "For example, to find how many POs exist, run 'SELECT COUNT(*) FROM purchase_orders'. "
+        "The database includes granular line item quantity tracking in `po_items` (`quantity`, `received_quantity`, `shipped_quantity`, `transit_quantity`) to support queries about order delivery ratios, partial receipts, and shipments. "
         "Do NOT assume or make up numbers; always query the real database. "
         "Database Schema:\n"
         f"{db_schema}\n\n"
