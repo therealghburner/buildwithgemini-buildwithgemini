@@ -123,17 +123,31 @@ def _extract_parts(parts: list) -> list[dict]:
     out: list[dict] = []
     for p in parts:
         root = getattr(p, "root", p)
+        print(f"DEBUG _extract_parts type(root): {type(root)}")
+        print(f"DEBUG _extract_parts root properties: {dir(root)}")
+        print(f"DEBUG _extract_parts root details: {root}")
         if isinstance(root, TextPart) and getattr(root, "text", None):
             out.append({"kind": "text", "text": root.text})
         elif getattr(root, "data", None) is not None:
-            meta = getattr(root, "metadata", None) or {}
+            data_dict = root.data
+            meta = {}
+            if isinstance(data_dict, dict):
+                meta = data_dict.get("metadata") or {}
+            if not meta:
+                meta = getattr(root, "metadata", None) or {}
+            
             mime = meta.get("mimeType") if isinstance(meta, dict) else None
             if mime == _A2UI_MIME:
-                out.append({"kind": "a2ui", "data": root.data})
+                inner_data = data_dict.get("data") if isinstance(data_dict, dict) else data_dict
+                out.append({"kind": "a2ui", "data": inner_data})
         elif isinstance(root, FilePart):
             uri = getattr(getattr(root, "file", None), "uri", None)
             if uri:
                 out.append({"kind": "text", "text": uri})
+        else:
+            inline_data = getattr(root, "inline_data", None)
+            if inline_data is not None:
+                print(f"DEBUG Found inline_data blob: {type(inline_data)}")
     return out
 
 
@@ -167,21 +181,30 @@ async def chat(req: Request):
         last_task = None
         got_artifact_update = False
         async for event in a2a_client.send_message(msg):
+            print(f"DEBUG Event received: {type(event)}")
             if not isinstance(event, tuple):
                 continue
             task, update = event
+            print(f"DEBUG task: {type(task)}, update: {type(update)}")
             if task is not None:
                 last_task = task
                 if getattr(task, "context_id", None):
                     _contexts[user_id] = task.context_id
             if isinstance(update, TaskArtifactUpdateEvent):
                 got_artifact_update = True
-                parts.extend(_extract_parts(update.artifact.parts))
+                extracted = _extract_parts(update.artifact.parts)
+                print(f"DEBUG Extracted parts from update: {extracted}")
+                parts.extend(extracted)
 
         # Non-streaming fallback: pull parts from the final task's artifacts.
         if not got_artifact_update and last_task is not None:
+            print(f"DEBUG Using non-streaming fallback, task.artifacts count: {len(getattr(last_task, 'artifacts', None) or [])}")
+            print(f"DEBUG task properties: {dir(last_task)}")
+            print(f"DEBUG task details: {last_task}")
             for artifact in getattr(last_task, "artifacts", None) or []:
-                parts.extend(_extract_parts(artifact.parts))
+                extracted = _extract_parts(artifact.parts)
+                print(f"DEBUG Extracted parts from fallback artifact: {extracted}")
+                parts.extend(extracted)
 
     if not parts:
         # The turn produced no text or UI (e.g. the agent only ran tools, or a
