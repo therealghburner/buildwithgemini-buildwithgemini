@@ -46,6 +46,22 @@ Set your active Google Cloud project ID (replace with your active Qwiklabs or pe
 gcloud config set project qwiklabs-gcp-03-dcb3c6d873b1
 ```
 
+### 👥 Collaborator Handoff: Sharing vs. Brand New GCP Projects
+If you are handing this repository over to a collaborator or a new developer, their setup details will depend on which Google Cloud Project they intend to target:
+
+#### Scenario A: Sharing Your Active Google Cloud Project (Easiest)
+If they are authorized to work in the **same Google Cloud Project** as you:
+1. They authenticate their terminal using `gcloud auth login` and `gcloud auth application-default login`.
+2. They set their active project: `gcloud config set project qwiklabs-gcp-03-dcb3c6d873b1`.
+3. They follow the local Quickstart. **Everything will work out-of-the-box instantly!**
+
+#### Scenario B: Deploying in a Brand New Google Cloud Project
+If they want to run the agent in a **completely separate, brand new Google Cloud Project**, they must configure their own project-level bindings:
+1. **Firestore**: Enable Firestore on their new project (collection seeding is fully automatic on their first chat message).
+2. **Memory Bank**: Deploy a managed Memory Bank using the pre-configured instructions in `.agents/skills/setup-memory-bank/` and export their own `MEMORY_BANK_ID` env variable in their terminal session.
+3. **RAG Engine Corpus**: Create a Serverless RAG corpus using instructions in `.agents/skills/build-rag/` and update the RAG Corpus ID inside `my-agent/app/rag_tool.py`.
+4. Run `agents-cli deploy` once from `my-agent/` to instantiate their own isolated reasoning engine container under their project.
+
 ---
 
 <a name="3-repository-layout"></a>
